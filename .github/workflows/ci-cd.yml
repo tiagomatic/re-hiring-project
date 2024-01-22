@@ -21,7 +21,7 @@ jobs:
           echo "$HOME/bin" >> $GITHUB_PATH
 
       - name: Build and Deploy to Production
-        run: task -t ./path/to/your/prod/Taskfile.yml --prod
+        run: task -t ./Taskfile.yml build-and-push --image-tag=prod && task -t ./Taskfile.yml update-ecs-service --image-tag=prod
 
   build-and-deploy-dev:
     name: Build and Deploy to Development
@@ -37,4 +37,4 @@ jobs:
           echo "$HOME/bin" >> $GITHUB_PATH
 
       - name: Build and Deploy to Development
-        run: task -t ./path/to/your/dev/Taskfile.yml deploy-env
+        run: task -t ./Taskfile.yml build-and-push --image-tag=dev && task -t ./Taskfile.yml update-ecs-service --image-tag=dev
