@@ -1,0 +1,40 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - master
+      - dev
+
+jobs:
+  build-and-deploy-prod:
+    name: Build and Deploy to Production
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Task
+        run: |
+          curl -sL https://taskfile.dev/install.sh | sh
+          echo "$HOME/bin" >> $GITHUB_PATH
+
+      - name: Build and Deploy to Production
+        run: task -t ./path/to/your/prod/Taskfile.yml --prod
+
+  build-and-deploy-dev:
+    name: Build and Deploy to Development
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/dev'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Task
+        run: |
+          curl -sL https://taskfile.dev/install.sh | sh
+          echo "$HOME/bin" >> $GITHUB_PATH
+
+      - name: Build and Deploy to Development
+        run: task -t ./path/to/your/dev/Taskfile.yml deploy-env

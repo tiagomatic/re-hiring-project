@@ -1,5 +1,8 @@
 version: '3'
 
+var:
+  IMAGE_TAG: dev  # Default environment. Can be overridden with `--IMAGE_TAG=prod`.
+
 env:
   AWS_REGION: 'us-east-2'
   ECR_REPOSITORY: 'go-web-app'
