@@ -1,0 +1,34 @@
+version: '3'
+
+env:
+  AWS_REGION: 'us-east-2'
+  ECR_REPOSITORY: 'go-web-app'
+  ECS_SERVICE_NAME: 'go-web-app-service'
+  ECS_CLUSTER_NAME: 'go-web-app-cluster'
+  CONTAINER_NAME: 'go-web-app'
+  IMAGE_TAG: '{{default .GIT_COMMIT "latest"}}'
+
+tasks:
+  login-ecr:
+    desc: 'Login to Amazon ECR'
+    cmds:
+      - aws ecr get-login-password --region {{.AWS_REGION}} | docker login --username AWS --password-stdin {{.AWS_ACCOUNT_ID}}.dkr.ecr.{{.AWS_REGION}}.amazonaws.com
+
+  build-and-push:
+    desc: 'Build, tag, and push Docker image to Amazon ECR'
+    cmds:
+      - docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
+      - docker tag $ECR_REPOSITORY:$IMAGE_TAG {{.AWS_ACCOUNT_ID}}.dkr.ecr.{{.AWS_REGION}}.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG
+      - docker push {{.AWS_ACCOUNT_ID}}.dkr.ecr.{{.AWS_REGION}}.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG
+    deps: [login-ecr]
+
+  update-ecs-service:
+    desc: 'Update Amazon ECS service with the new task definition'
+    cmds:
+      - aws ecs update-service --cluster {{.ECS_CLUSTER_NAME}} --service {{.ECS_SERVICE_NAME}} --force-new-deployment
+
+  deploy:
+    desc: 'Full deployment workflow'
+    cmds:
+      - task: build-and-push
+      - task: update-ecs-service

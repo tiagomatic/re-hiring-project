@@ -1,0 +1,47 @@
+version: '3'
+
+vars:
+  ENV: dev  # Default environment. Can be overridden with `--env=prod`.
+
+tasks:
+  init:
+    desc: Initialize Terraform
+    dir: iac/envs/{{.ENV}}
+    cmds:
+      - terraform init
+
+  plan:
+    desc: Create Terraform plan
+    dir: iac/envs/{{.ENV}}
+    cmds:
+      - terraform plan -out=tfplan
+
+  apply:
+    desc: Apply Terraform plan
+    dir: iac/envs/{{.ENV}}
+    cmds:
+      - terraform apply -auto-approve
+
+  destroy:
+    desc: Destroy Terraform-managed infrastructure
+    dir: iac/envs/{{.ENV}}
+    cmds:
+      - terraform destroy -auto-approve
+
+  deploy-env:
+    desc: Deploy infrastructure and application to the specified environment
+    cmds:
+      - task: init
+      - task: plan
+      - task: apply
+    vars:
+      ENV:
+        sh: echo "{{default .ENV "dev"}}"
+
+  destroy-env:
+    desc: Destroy infrastructure for the specified environment
+    cmds:
+      - task: destroy
+    vars:
+      ENV:
+        sh: echo "{{default .ENV "dev"}}"

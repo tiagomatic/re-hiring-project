@@ -1,0 +1,5 @@
+version: '3'
+
+includes:
+  iac: iac/Taskfile.yml
+  app: go-web-app/Taskfile.yml
